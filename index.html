@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosso Lugar 💙</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --bg-alt: #eff6ff;
+      --accent: #3b82f6;
+      --accent-soft: #dbeafe;
+      --text: #1e293b;
+      --text-soft: #64748b;
+      --white: #ffffff;
+      --shadow: 0 2px 20px rgba(59,130,246,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+    header { text-align: center; padding-bottom: 48px; }
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .subtitulo {
+      color: var(--text-soft);
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+    }
+    .contador {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 32px;
+      background: var(--white);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      color: var(--accent);
+      font-size: 1.05rem;
+      letter-spacing: 0.5px;
+    }
+    section { margin-bottom: 56px; }
+    h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--accent-soft);
+    }
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .foto-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+    .foto-card:hover { transform: translateY(-4px); }
+    .foto-card img { width: 100%; height: 180px; object-fit: cover; }
+    .foto-card p { padding: 12px 16px; font-size: 0.9rem; color: var(--text-soft); }
+    .cartas { display: flex; flex-direction: column; gap: 16px; }
+    .carta {
+      background: var(--white);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .carta:hover { transform: translateX(4px); }
+    .carta h3 { color: var(--accent); font-size: 1rem; margin-bottom: 8px; font-weight: 500; }
+    .carta-conteudo {
+      margin-top: 12px;
+      color: var(--text-soft);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      display: none;
+    }
+    .frases { display: grid; gap: 12px; }
+    .frase {
+      background: var(--white);
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      color: var(--text);
+      font-style: italic;
+    }
+    .player-box {
+      background: var(--white);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    audio { width: 100%; margin-top: 12px; }
+    footer {
+      text-align: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--accent-soft);
+      color: var(--text-soft);
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    .audio-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+    .audio-btn:hover { transform: scale(1.05); }
+    .floco {
+      position: fixed;
+      top: -40px;
+      animation: queda linear infinite;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    @keyframes queda {
+      to { transform: translateY(100vh) rotate(360deg); }
+    }
+    .vazio { color: var(--text-soft); text-align: center; padding: 20px; }
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px; }
+      h1 { font-size: 2rem; }
+      .galeria { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="flocos"></div>
+  <button class="audio-btn" id="audioBtn" onclick="tocarMusica()">🎵</button>
+
+  <div class="container">
+    <header>
+      <h1>💙 Para Você</h1>
+      <p class="subtitulo">Assim como os lírios... você é rara e linda</p>
+      <p class="contador" id="contador"></p>
+    </header>
+
+    <section id="secao-musica" style="display:none">
+      <h2>🎵 Nossa Música</h2>
+      <div class="player-box">
+        <strong id="nome-musica"></strong>
+        <audio id="player" loop controls preload="metadata">
+          <source src="" type="audio/mpeg">
+        
+      </div>
+    </section>
+
+    <section>
+      <h2>📸 Nossos Momentos</h2>
+      <div class="galeria" id="galeria"></div>
+    </section>
+
+    <section>
+      <h2>💌 Cartinhas</h2>
+      <div class="cartas" id="cartas"></div>
+    </section>
+
+    <section>
+      <h2>🤍 Coisas que amo em você</h2>
+      <div class="frases" id="frases"></div>
+    </section>
+
+    <footer>
+      Feito com todo o carinho 💙<br>
+      "Minha meta é ficar bem de DelaCruz" 🤍
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    // ==========================================
+    // 💙 DADOS — carregados de forma segura
+    // ==========================================
+    const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
+    const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
+    const DATA_INICIO = "2026-06-26";
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    let MUSICA_URL = "";
+
+    function criarFlocos(){
+      const c = document.getElementById("flocos");
+      const sim = ["💙","🤍","✨","🌸"];
+      setInterval(()=>{
+        const el = document.createElement("div");
+        el.className = "floco";
+        el.textContent = sim[Math.floor(Math.random()*sim.length)];
+        el.style.left = Math.random()*100 + "vw";
+        el.style.fontSize = (Math.random()*12+12) + "px";
+        el.style.animationDuration = (Math.random()*8+8) + "s";
+        c.appendChild(el);
+        setTimeout(()=>el.remove(),16000);
+      },1200);
+    }
+
+    function atualizarContador(){
+      const inicio = new Date(DATA_INICIO);
+      const agora = new Date();
+      let anos = agora.getFullYear() - inicio.getFullYear();
+      let meses = agora.getMonth() - inicio.getMonth();
+      let dias = agora.getDate() - inicio.getDate();
+      if(dias < 0){ meses--; dias += new Date(agora.getFullYear(),agora.getMonth(),0).getDate(); }
+      if(meses < 0){ anos--; meses += 12; }
+      let texto = `Estamos juntos há `;
+      if(anos>0) texto += `${anos} ano${anos>1?'s':''}, `;
+      texto += `${meses} mês${meses>1?'es':''} e ${dias} dia${dias>1?'s':''} 💙`;
+      document.getElementById("contador").textContent = texto;
+    }
+
+    function tocarMusica(){
+      const p = document.getElementById("player");
+      if(!MUSICA_URL) return alert("Cadastre uma música no painel admin! 💙");
+      p.paused ? p.play() : p.pause();
+      document.getElementById("audioBtn").style.opacity = p.paused ? 1 : 0.5;
+    }
+
+    async function carregarMusica(){
+      const {data} = await supabase.from("configuracoes").select("*").limit(1).single();
+      if(data && data.musica_url){
+        MUSICA_URL = data.musica_url;
+        document.getElementById("player").src = MUSICA_URL;
+        document.getElementById("nome-musica").textContent = data.musica_nome || "Nossa Música 💙";
+        document.getElementById("secao-musica").style.display = "block";
+      }
+    }
+
+    async function carregarFotos(){
+      const {data} = await supabase.from("fotos").select("*").order("created_at",{ascending:false});
+      const g = document.getElementById("galeria");
+      g.innerHTML = data?.map(f=>`
+        <div class="foto-card">
+          <img src="${f.url}" alt="${f.legenda||''}" loading="lazy">
+          <p>${f.legenda||'Nosso momento 💙'}</p>
+        </div>`).join('') || '<p class="vazio">Ainda sem fotos... envie pelo painel!</p>';
+    }
+
+    async function carregarCartas(){
+      const {data} = await supabase.from("cartinhas").select("*").order("created_at",{ascending:false});
+      const c = document.getElementById("cartas");
+      c.innerHTML = data?.map(x=>`
+        <div class="carta" onclick="this.querySelector('.carta-conteudo').style.display=this.querySelector('.carta-conteudo').style.display=='block'?'none':'block'">
+          <h3>💌 ${x.titulo}</h3>
+          <div class="carta-conteudo">${x.conteudo.replace(/\n/g,'<br>')}</div>
+        </div>`).join('') || '<p class="vazio">Ainda sem cartinhas...</p>';
+    }
+
+    async function carregarFrases(){
+      const {data} = await supabase.from("mensagens").select("*").order("created_at",{ascending:false});
+      const fixas = [
+        "Seu sorriso é como lírio ao amanhecer 💙",
+        "Você é rara, linda e especial 🤍",
+        "A cada dia eu gosto mais de você 💙",
+        "Quase namorados... mas já é tudo 💍",
+        "Obrigado por ser exatamente você 💙",
+        "Lírios são lindos... mas você é mais 🤍",
+        "Minha meta é ficar bem de DelaCruz 💙🤍"
+      ];
+      const todas = (data?.map(m=>`${m.emoji} ${m.texto}`)||[]).concat(fixas);
+      document.getElementById("frases").innerHTML = todas.slice(0,8).map(t=>`<div class="frase">${t}</div>`).join('');
+    }
+
+    atualizarContador();
+    carregarMusica();
+    carregarFotos();
+    carregarCartas();
+    carregarFrases();
+    criarFlocos();
+  </script>
+</body>
+</html>
