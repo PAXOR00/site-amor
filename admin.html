@@ -44,6 +44,7 @@
       font-size: 1rem;
       font-family: inherit;
     }
+    input[type="file"] { padding: 10px; background: var(--bg-alt); }
     input:focus, textarea:focus { outline: none; border-color: var(--accent); }
     button {
       background: var(--accent);
@@ -67,7 +68,8 @@
       gap: 8px;
     }
     .item-conteudo { width: 100%; margin-top: 8px; color: var(--text-soft); font-size: 0.95rem; }
-    .status { margin-top: 10px; color: var(--success); font-size: 0.9rem; }
+    .status { margin-top: 10px; color: var(--success); font-size: 0.9rem; font-weight:500; }
+    .erro { color: var(--danger); }
     .logs-box {
       background: #f0fdf4;
       border-left: 4px solid var(--success);
@@ -84,8 +86,10 @@
       margin: 8px 0;
       border-left: 3px solid var(--accent);
     }
-    .preview-card img { max-width: 100%; border-radius: 6px; margin-top: 8px; }
+    .preview-card img, .preview-card video { max-width: 100%; border-radius: 6px; margin-top: 8px; }
     .vazio { color: var(--text-soft); text-align: center; padding: 16px; font-style: italic; }
+    .barra { height: 8px; background: var(--accent-soft); border-radius: 4px; overflow:hidden; margin:8px 0; display:none; }
+    .barra span { display:block; height:100%; background:var(--accent); width:0%; transition: width 0.3s; }
   </style>
 </head>
 <body>
@@ -97,28 +101,39 @@
     <div class="logs-box">
       <h3>📊 Acessos ao Painel</h3>
       <p><strong>Total de entradas:</strong> <span id="totalAcessos">0</span></p>
-      <p><strong>Último acesso:</strong> <span id="ultimoAcesso">—</span></p>
+      <p><strong>Último acesso:</strong> <span id="ultimoAcesso">Carregando...</span></p>
       <div id="listaLogs" style="margin-top:10px;max-height:150px;overflow-y:auto;"></div>
     </div>
 
-    <!-- 🎵 MÚSICA -->
+    <!-- 🎵 MÚSICA — UPLOAD DE ARQUIVO -->
     <h2>🎵 Nossa Música</h2>
-    <div id="previewMusica" class="preview-card oculto" style="display:none;">
-      <strong>Pré-visualização:</strong>
+    <div id="previewMusica" class="preview-card" style="display:none;">
+      <strong>Salvo ✅:</strong>
       <p id="nomeMusicaAtual"></p>
     </div>
     <input type="text" id="musicaNome" placeholder="Nome da música (ex: Nossa Música 💙)">
-    <input type="text" id="musicaUrl" placeholder="URL do arquivo .MP3 / .WAV">
+    <input type="file" id="musicaArquivo" accept="audio/*">
+    <div class="barra" id="barraMusica"><span id="pMusica"></span></div>
     <button onclick="salvarMusica()">Salvar Música ✅</button>
     <div class="status" id="statusMusica"></div>
 
-    <!-- 📸 FOTOS -->
+    <!-- 📸 FOTOS — UPLOAD DE ARQUIVO -->
     <h2>📸 Adicionar Foto</h2>
-    <input type="text" id="fotoUrl" placeholder="URL da foto (Supabase Storage)">
+    <input type="file" id="fotoArquivo" accept="image/*">
     <input type="text" id="fotoLegenda" placeholder="Legenda (ex: Nosso momento 💙)">
+    <div class="barra" id="barraFoto"><span id="pFoto"></span></div>
     <button onclick="adicionarFoto()">Salvar Foto ✅</button>
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">📸 Fotos Cadastradas:</h3>
     <div id="listaFotos"></div>
+
+    <!-- 🎬 VÍDEOS -->
+    <h2>🎬 Adicionar Vídeo</h2>
+    <input type="file" id="videoArquivo" accept="video/*">
+    <input type="text" id="videoLegenda" placeholder="Legenda do vídeo">
+    <div class="barra" id="barraVideo"><span id="pVideo"></span></div>
+    <button onclick="adicionarVideo()">Salvar Vídeo ✅</button>
+    <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">🎬 Vídeos Cadastrados:</h3>
+    <div id="listaVideos"></div>
 
     <!-- 💌 CARTINHAS -->
     <h2>💌 Escrever Cartinha</h2>
@@ -139,71 +154,121 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
+    // ==========================================
+    // 💙 CONFIGURAÇÕES
+    // ==========================================
     const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
     const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
+    const BUCKET = "site-amor"; // Pasta onde os arquivos serão salvos
 
     const { createClient } = window.supabase;
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ==========================================
-    // 🚀 JÁ CARREGA TUDO AO ABRIR A PÁGINA
+    // 🚀 CARREGA TUDO AO ABRIR
     // ==========================================
     document.addEventListener("DOMContentLoaded", async () => {
       await registrarAcesso();
       await carregarLogs();
       await carregarMusica();
       await carregarFotos();
+      await carregarVideos();
       await carregarCartas();
       await carregarMsgs();
     });
 
     // ==========================================
-    // 📊 SISTEMA DE LOGS — CONTAGEM DE ACESSOS
+    // 📊 LOGS — CORRIGIDO!
     // ==========================================
     async function registrarAcesso(){
       try {
         const agora = new Date().toLocaleString("pt-BR");
         await supabase.from("logs_acesso").insert({ data_acesso: agora });
       } catch(e) {
-        console.log("Tabela de logs ainda sem permissão, sem problema!");
+        console.log("Logs: ", e.message);
       }
     }
 
     async function carregarLogs(){
       try {
-        const {data} = await supabase.from("logs_acesso").select("*").order("id",{ascending:false});
+        const {data, error} = await supabase.from("logs_acesso").select("*").order("id",{ascending:false});
+        if(error) throw error;
         if(data && data.length > 0){
           document.getElementById("totalAcessos").textContent = data.length;
           document.getElementById("ultimoAcesso").textContent = data[0].data_acesso;
           document.getElementById("listaLogs").innerHTML = data.slice(0,5).map(l=>
             `<p class="log-data">• ${l.data_acesso}</p>`
           ).join('');
+        } else {
+          document.getElementById("ultimoAcesso").textContent = "Primeiro acesso! ✅";
+          document.getElementById("listaLogs").innerHTML = '<p class="vazio">Aguardando próximos acessos...</p>';
         }
       } catch(e) {
-        document.getElementById("listaLogs").innerHTML = '<p style="color:var(--text-soft);font-size:0.85rem;">Logs aguardando permissão no Supabase</p>';
+        document.getElementById("ultimoAcesso").innerHTML = `<span style="color:var(--danger)">⚠️ Crie a tabela logs_acesso no Supabase</span>`;
       }
     }
 
     // ==========================================
-    // 🎵 MÚSICA
+    // 📤 FUNÇÃO DE UPLOAD — SELECIONA ARQUIVO DIRETO!
+    // ==========================================
+    async function uploadArquivo(arquivo, pasta){
+      const nome = Date.now() + "_" + arquivo.name.replace(/[^a-z0-9.]/gi, '_');
+      const caminho = `${pasta}/${nome}`;
+      
+      const {data, error} = await supabase.storage
+        .from(BUCKET)
+        .upload(caminho, arquivo, { upsert: true });
+      
+      if(error) throw error;
+      
+      const {data:{publicUrl}} = supabase.storage
+        .from(BUCKET)
+        .getPublicUrl(caminho);
+      
+      return publicUrl;
+    }
+
+    // ==========================================
+    // 🎵 MÚSICA — UPLOAD DE ARQUIVO
     // ==========================================
     async function salvarMusica(){
       const nome = document.getElementById("musicaNome").value.trim() || "Nossa Música 💙";
-      const url = document.getElementById("musicaUrl").value.trim();
-      if(!url) return alert("Cole a URL do áudio!");
+      const arquivo = document.getElementById("musicaArquivo").files[0];
       
-      await supabase.from("configuracoes").upsert({ id:1, musica_nome:nome, musica_url:url });
+      if(!arquivo) return alert("Escolha um arquivo de música! 🎵");
       
-      document.getElementById("statusMusica").textContent = "✅ Música salva!";
-      document.getElementById("musicaUrl").value = "";
-      setTimeout(()=>document.getElementById("statusMusica").textContent = "", 3000);
-      
-      await carregarMusica();
+      try {
+        document.getElementById("barraMusica").style.display = "block";
+        document.getElementById("pMusica").style.width = "50%";
+        
+        const url = await uploadArquivo(arquivo, "musicas");
+        
+        document.getElementById("pMusica").style.width = "100%";
+        
+        const {error} = await supabase.from("configuracoes").upsert({ 
+          id: 1, 
+          musica_nome: nome, 
+          musica_url: url 
+        });
+        if(error) throw error;
+        
+        document.getElementById("statusMusica").textContent = "✅ Música salva com sucesso!";
+        document.getElementById("musicaArquivo").value = "";
+        document.getElementById("musicaNome").value = "";
+        document.getElementById("barraMusica").style.display = "none";
+        
+        await carregarMusica();
+        setTimeout(()=>document.getElementById("statusMusica").textContent = "", 4000);
+      } catch(e) {
+        document.getElementById("statusMusica").innerHTML = `<span class="erro">❌ Erro: ${e.message}</span>`;
+        document.getElementById("barraMusica").style.display = "none";
+      }
     }
 
     async function carregarMusica(){
       try {
-        const {data} = await supabase.from("configuracoes").select("*").limit(1).single();
+        const {data, error} = await supabase.from("configuracoes").select("*").limit(1).single();
+        if(error) return;
         if(data && data.musica_url){
           document.getElementById("previewMusica").style.display = "block";
           document.getElementById("nomeMusicaAtual").textContent = `🎵 ${data.musica_nome || 'Sem nome'}`;
@@ -212,18 +277,35 @@
     }
 
     // ==========================================
-    // 📸 FOTOS
+    // 📸 FOTOS — UPLOAD DE ARQUIVO
     // ==========================================
     async function adicionarFoto(){
-      const url = document.getElementById("fotoUrl").value.trim();
+      const arquivo = document.getElementById("fotoArquivo").files[0];
       const legenda = document.getElementById("fotoLegenda").value.trim();
-      if(!url) return alert("Coloque a URL da foto!");
       
-      await supabase.from("fotos").insert({ url, legenda });
+      if(!arquivo) return alert("Escolha uma foto primeiro! 📸");
       
-      document.getElementById("fotoUrl").value = "";
-      document.getElementById("fotoLegenda").value = "";
-      await carregarFotos();
+      try {
+        document.getElementById("barraFoto").style.display = "block";
+        document.getElementById("pFoto").style.width = "50%";
+        
+        const url = await uploadArquivo(arquivo, "fotos");
+        
+        document.getElementById("pFoto").style.width = "100%";
+        
+        const {error} = await supabase.from("fotos").insert({ url, legenda });
+        if(error) throw error;
+        
+        document.getElementById("fotoArquivo").value = "";
+        document.getElementById("fotoLegenda").value = "";
+        document.getElementById("barraFoto").style.display = "none";
+        
+        await carregarFotos();
+        alert("✅ Foto salva com sucesso!");
+      } catch(e) {
+        alert("❌ Erro: " + e.message);
+        document.getElementById("barraFoto").style.display = "none";
+      }
     }
 
     async function excluirFoto(id){
@@ -234,9 +316,10 @@
     }
 
     async function carregarFotos(){
-      const {data} = await supabase.from("fotos").select("*").order("created_at", {ascending:false});
+      const {data, error} = await supabase.from("fotos").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaFotos");
       
+      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma foto cadastrada ainda 💙</p>';
         return;
@@ -246,11 +329,68 @@
         <div class="item">
           <div style="flex:1;min-width:200px;">
             <strong>📸 ${f.legenda || 'Sem legenda'}</strong>
-            <div class="item-conteudo">
-              <img src="${f.url}" alt="${f.legenda}" style="max-width:200px;border-radius:6px;">
-            </div>
+            <div class="item-conteudo"><img src="${f.url}" alt="${f.legenda}" loading="lazy"></div>
           </div>
           <button class="btn-excluir" onclick="excluirFoto('${f.id}')">Excluir</button>
+        </div>`).join('');
+    }
+
+    // ==========================================
+    // 🎬 VÍDEOS — UPLOAD DE ARQUIVO
+    // ==========================================
+    async function adicionarVideo(){
+      const arquivo = document.getElementById("videoArquivo").files[0];
+      const legenda = document.getElementById("videoLegenda").value.trim();
+      
+      if(!arquivo) return alert("Escolha um vídeo primeiro! 🎬");
+      
+      try {
+        document.getElementById("barraVideo").style.display = "block";
+        document.getElementById("pVideo").style.width = "50%";
+        
+        const url = await uploadArquivo(arquivo, "videos");
+        
+        document.getElementById("pVideo").style.width = "100%";
+        
+        const {error} = await supabase.from("fotos").insert({ url, legenda, tipo: "video" });
+        if(error) throw error;
+        
+        document.getElementById("videoArquivo").value = "";
+        document.getElementById("videoLegenda").value = "";
+        document.getElementById("barraVideo").style.display = "none";
+        
+        await carregarVideos();
+        alert("✅ Vídeo salvo com sucesso!");
+      } catch(e) {
+        alert("❌ Erro: " + e.message);
+        document.getElementById("barraVideo").style.display = "none";
+      }
+    }
+
+    async function excluirVideo(id){
+      if(confirm("Excluir esse vídeo?")){
+        await supabase.from("fotos").delete().eq("id", id);
+        await carregarVideos();
+      }
+    }
+
+    async function carregarVideos(){
+      const {data, error} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at", {ascending:false});
+      const container = document.getElementById("listaVideos");
+      
+      if(error) return;
+      if(!data || data.length === 0){
+        container.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>';
+        return;
+      }
+      
+      container.innerHTML = data.map(v=>`
+        <div class="item">
+          <div style="flex:1;min-width:200px;">
+            <strong>🎬 ${v.legenda || 'Sem legenda'}</strong>
+            <div class="item-conteudo"><video src="${v.url}" controls style="max-width:250px;border-radius:6px;"></video></div>
+          </div>
+          <button class="btn-excluir" onclick="excluirVideo('${v.id}')">Excluir</button>
         </div>`).join('');
     }
 
@@ -262,11 +402,13 @@
       const conteudo = document.getElementById("cartaConteudo").value.trim();
       if(!titulo || !conteudo) return alert("Preencha tudo!");
       
-      await supabase.from("cartinhas").insert({ titulo, conteudo });
+      const {error} = await supabase.from("cartinhas").insert({ titulo, conteudo });
+      if(error) return alert("❌ Erro: " + error.message);
       
       document.getElementById("cartaTitulo").value = "";
       document.getElementById("cartaConteudo").value = "";
       await carregarCartas();
+      alert("✅ Cartinha salva!");
     }
 
     async function excluirCarta(id){
@@ -277,9 +419,10 @@
     }
 
     async function carregarCartas(){
-      const {data} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
+      const {data, error} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaCartas");
       
+      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>';
         return;
@@ -303,10 +446,12 @@
       const emoji = document.getElementById("msgEmoji").value.trim() || "✨";
       if(!texto) return alert("Escreva a mensagem!");
       
-      await supabase.from("mensagens").insert({ texto, emoji });
+      const {error} = await supabase.from("mensagens").insert({ texto, emoji });
+      if(error) return alert("❌ Erro: " + error.message);
       
       document.getElementById("msgTexto").value = "";
       await carregarMsgs();
+      alert("✅ Mensagem salva!");
     }
 
     async function excluirMsg(id){
@@ -317,9 +462,10 @@
     }
 
     async function carregarMsgs(){
-      const {data} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
+      const {data, error} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaMsgs");
       
+      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>';
         return;
