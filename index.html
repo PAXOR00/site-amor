@@ -5,262 +5,175 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nosso Site 💙</title>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --bg-alt: #eff6ff;
-      --accent: #3b82f6;
-      --accent-soft: #dbeafe;
-      --text: #1e293b;
-      --text-soft: #64748b;
-      --white: #ffffff;
-      --shadow: 0 2px 20px rgba(59,130,246,0.08);
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Segoe UI',sans-serif;
+      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      min-height:100vh;
+      padding:30px 20px;
+      color:#1e293b;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 40px 24px;
+    .caixa{
+      max-width:600px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:24px;
+      padding:35px 25px;
+      box-shadow:0 8px 32px rgba(59,130,246,.12);
     }
-    .caixa {
-      max-width: 700px;
-      margin: 0 auto;
-      background: var(--white);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
+    h1{
+      text-align:center;
+      color:#3b82f6;
+      font-size:1.8rem;
+      margin-bottom:30px;
     }
-    h1, h2 { color: var(--accent); text-align: center; margin-bottom: 30px; }
-    h2 { font-size: 1.2rem; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--accent-soft); }
-    .musica-player {
-      background: var(--bg-alt);
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 30px;
+    h2{
+      color:#3b82f6;
+      font-size:1.15rem;
+      margin:40px 0 15px;
+      padding-bottom:8px;
+      border-bottom:2px solid #dbeafe;
     }
-    .musica-player audio { width: 100%; margin-top: 10px; }
-    .grade-fotos, .grade-videos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
+    .musica-box{
+      background:#eff6ff;
+      border-radius:14px;
+      padding:18px;
+      text-align:center;
     }
-    .foto-card, .video-card {
-      background: var(--bg-alt);
-      border-radius: 12px;
-      overflow: hidden;
+    .musica-box h3{color:#1e40af; margin-bottom:10px; font-size:1rem;}
+    audio{width:100%; border-radius:8px;}
+    .foto-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      gap:12px;
     }
-    .foto-card img, .video-card video {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
+    .foto-card{
+      background:#eff6ff;
+      border-radius:12px;
+      overflow:hidden;
     }
-    .foto-card p, .video-card p {
-      padding: 10px;
-      font-size: 0.95rem;
-      color: var(--text-soft);
+    .foto-card img{width:100%; height:140px; object-fit:cover; display:block;}
+    .foto-card p{padding:10px; font-size:.9rem; color:#475569; text-align:center;}
+    .video-card{
+      background:#eff6ff;
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:12px;
     }
-    .cartinha {
-      background: linear-gradient(135deg, #fff8f8, #eff6ff);
-      padding: 24px;
-      border-radius: 14px;
-      margin: 12px 0;
-      border-left: 4px solid var(--accent);
+    .video-card video{width:100%; height:180px; object-fit:cover; display:block;}
+    .video-card p{padding:10px; font-size:.9rem; color:#475569; text-align:center;}
+    .cartinha{
+      background:linear-gradient(135deg,#fff8f8,#eff6ff);
+      border-radius:14px;
+      padding:20px;
+      margin-bottom:12px;
+      border-left:4px solid #3b82f6;
     }
-    .cartinha h3 { color: var(--accent); margin-bottom: 10px; }
-    .mensagem {
-      background: var(--bg-alt);
-      padding: 16px;
-      border-radius: 10px;
-      margin: 8px 0;
-      font-size: 1.05rem;
+    .cartinha h3{color:#3b82f6; margin-bottom:10px; font-size:1rem;}
+    .mensagem{
+      background:#eff6ff;
+      border-radius:10px;
+      padding:14px 16px;
+      margin-bottom:8px;
+      font-size:1rem;
     }
-    .vazio {
-      text-align: center;
-      color: var(--text-soft);
-      padding: 30px;
-      font-style: italic;
+    .vazio{
+      text-align:center;
+      color:#94a3b8;
+      padding:25px;
+      font-style:italic;
     }
-    .carregando {
-      text-align: center;
-      color: var(--accent);
-      padding: 20px;
-    }
-    .aviso {
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      text-align: center;
-      margin-bottom: 20px;
+    .aviso-topo{
+      background:#dbeafe;
+      color:#1e40af;
+      padding:10px 14px;
+      border-radius:10px;
+      font-size:.9rem;
+      text-align:center;
+      margin-bottom:25px;
     }
   </style>
 </head>
 <body>
-
   <div class="caixa">
     <h1>💙 Nosso Site 💙</h1>
+    <div class="aviso-topo">💡 Depois de salvar no Painel → atualize esta página!</div>
 
-    <div class="aviso">
-      🔄 Atualize a página depois de salvar algo no Painel Admin para ver as novidades!
-    </div>
-
-    <!-- 🎵 MÚSICA -->
     <h2>🎵 Nossa Música</h2>
-    <div id="areaMusica" class="carregando">Carregando música...</div>
+    <div id="musica">Carregando...</div>
 
-    <!-- ✨ MENSAGENS -->
     <h2>✨ Mensagens</h2>
-    <div id="areaMsgs" class="carregando">Carregando mensagens...</div>
+    <div id="msgs">Carregando...</div>
 
-    <!-- 📸 FOTOS -->
-    <h2>📸 Nossas Fotos</h2>
-    <div id="areaFotos" class="carregando">Carregando fotos...</div>
+    <h2>📸 Fotos</h2>
+    <div id="fotos">Carregando...</div>
 
-    <!-- 🎬 VÍDEOS -->
-    <h2>🎬 Nossos Vídeos</h2>
-    <div id="areaVideos" class="carregando">Carregando vídeos...</div>
+    <h2>🎬 Vídeos</h2>
+    <div id="videos">Carregando...</div>
 
-    <!-- 💌 CARTINHAS -->
     <h2>💌 Cartinhas</h2>
-    <div id="areaCartas" class="carregando">Carregando cartinhas...</div>
-
+    <div id="cartas">Carregando...</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // MESMA CONFIGURAÇÃO DO PAINEL ADMIN
     const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
     const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ==========================================
-    // 🚀 CARREGA TUDO AO ABRIR A PÁGINA
-    // ==========================================
     document.addEventListener("DOMContentLoaded", async () => {
-      await Promise.all([
-        carregarMusica(),
-        carregarMsgs(),
-        carregarFotos(),
-        carregarVideos(),
-        carregarCartas()
-      ]);
+      await carregarMusica();
+      await carregarMsgs();
+      await carregarFotos();
+      await carregarVideos();
+      await carregarCartas();
     });
 
-    // ==========================================
-    // 🎵 MOSTRAR MÚSICA
-    // ==========================================
     async function carregarMusica(){
-      const el = document.getElementById("areaMusica");
+      const el = document.getElementById("musica");
       try {
-        const {data, error} = await supabase.from("configuracoes").select("*").limit(1).single();
-        if(error || !data || !data.musica_url){
-          el.innerHTML = '<p class="vazio">Nenhuma música cadastrada ainda 🎵</p>';
+        const {data} = await supabase.from("configuracoes").select("*").limit(1).single();
+        if(!data || !data.musica_url){
+          el.innerHTML = '<p class="vazio">Nenhuma música ainda 🎵</p>';
           return;
         }
         el.innerHTML = `
-          <div class="musica-player">
+          <div class="musica-box">
             <h3>${data.musica_nome || 'Nossa Música 💙'}</h3>
-            <audio controls autoplay loop>
-              <source src="${data.musica_url}" type="audio/mpeg">
-              Seu navegador não suporta áudio.
-            
+            <audio controls><source src="${data.musica_url}" type="audio/mpeg">
           </div>`;
-      } catch(e) {
-        el.innerHTML = `<p class="vazio">Erro ao carregar música: ${e.message}</p>`;
-      }
+      } catch { el.innerHTML = '<p class="vazio">Nenhuma música ainda 🎵</p>'; }
     }
 
-    // ==========================================
-    // ✨ MOSTRAR MENSAGENS
-    // ==========================================
     async function carregarMsgs(){
-      const el = document.getElementById("areaMsgs");
-      try {
-        const {data, error} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
-        if(error) throw error;
-        if(!data || data.length === 0){
-          el.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>';
-          return;
-        }
-        el.innerHTML = data.map(m=>`
-          <div class="mensagem">${m.emoji} ${m.texto}</div>
-        `).join('');
-      } catch(e) {
-        el.innerHTML = `<p class="vazio">Erro: ${e.message}</p>`;
-      }
+      const el = document.getElementById("msgs");
+      const {data} = await supabase.from("mensagens").select("*").order("created_at",{ascending:false});
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>'; return; }
+      el.innerHTML = data.map(m=>`<div class="mensagem">${m.emoji} ${m.texto}</div>`).join('');
     }
 
-    // ==========================================
-    // 📸 MOSTRAR FOTOS
-    // ==========================================
     async function carregarFotos(){
-      const el = document.getElementById("areaFotos");
-      try {
-        const {data, error} = await supabase.from("fotos").select("*").eq("tipo","foto").order("created_at", {ascending:false});
-        if(error) throw error;
-        if(!data || data.length === 0){
-          el.innerHTML = '<p class="vazio">Nenhuma foto ainda 📸</p>';
-          return;
-        }
-        el.innerHTML = '<div class="grade-fotos">' + data.map(f=>`
-          <div class="foto-card">
-            <img src="${f.url}" alt="${f.legenda}" loading="lazy">
-            <p>${f.legenda || '📸 Sem legenda'}</p>
-          </div>`).join('') + '</div>';
-      } catch(e) {
-        el.innerHTML = `<p class="vazio">Erro: ${e.message}</p>`;
-      }
+      const el = document.getElementById("fotos");
+      const {data} = await supabase.from("fotos").select("*").eq("tipo","foto").order("created_at",{ascending:false});
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma foto ainda 📸</p>'; return; }
+      el.innerHTML = '<div class="foto-grid">' + data.map(f=>`
+        <div class="foto-card"><img src="${f.url}" loading="lazy"><p>${f.legenda||'📸'}</p></div>`).join('') + '</div>';
     }
 
-    // ==========================================
-    // 🎬 MOSTRAR VÍDEOS
-    // ==========================================
     async function carregarVideos(){
-      const el = document.getElementById("areaVideos");
-      try {
-        const {data, error} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at", {ascending:false});
-        if(error) throw error;
-        if(!data || data.length === 0){
-          el.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>';
-          return;
-        }
-        el.innerHTML = '<div class="grade-videos">' + data.map(v=>`
-          <div class="video-card">
-            <video src="${v.url}" controls></video>
-            <p>${v.legenda || '🎬 Sem legenda'}</p>
-          </div>`).join('') + '</div>';
-      } catch(e) {
-        el.innerHTML = `<p class="vazio">Erro: ${e.message}</p>`;
-      }
+      const el = document.getElementById("videos");
+      const {data} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at",{ascending:false});
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>'; return; }
+      el.innerHTML = data.map(v=>`
+        <div class="video-card"><video src="${v.url}" controls></video><p>${v.legenda||'🎬'}</p></div>`).join('');
     }
 
-    // ==========================================
-    // 💌 MOSTRAR CARTINHAS
-    // ==========================================
     async function carregarCartas(){
-      const el = document.getElementById("areaCartas");
-      try {
-        const {data, error} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
-        if(error) throw error;
-        if(!data || data.length === 0){
-          el.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>';
-          return;
-        }
-        el.innerHTML = data.map(c=>`
-          <div class="cartinha">
-            <h3>💌 ${c.titulo}</h3>
-            <p>${c.conteudo.replace(/\n/g, '<br>')}</p>
-          </div>`).join('');
-      } catch(e) {
-        el.innerHTML = `<p class="vazio">Erro: ${e.message}</p>`;
-      }
+      const el = document.getElementById("cartas");
+      const {data} = await supabase.from("cartinhas").select("*").order("created_at",{ascending:false});
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>'; return; }
+      el.innerHTML = data.map(c=>`
+        <div class="cartinha"><h3>💌 ${c.titulo}</h3><p>${c.conteudo.replace(/\n/g,'<br>')}</p></div>`).join('');
     }
   </script>
 </body>
