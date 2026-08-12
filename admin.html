@@ -99,7 +99,6 @@
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
   <div class="caixa" id="telaLogin">
     <h1>🔒 Área Secreta 💙</h1>
     <div class="aviso">Login e senha: <strong>pax0r</strong> / <strong>pax0r</strong></div>
@@ -108,11 +107,9 @@
     <button onclick="logar()">Entrar</button>
   </div>
 
-  <!-- PAINEL PRINCIPAL -->
   <div class="caixa oculto" id="telaPainel">
     <h1>💙 Gerenciar Nosso Site</h1>
 
-    <!-- 📊 LOGS DE ACESSO -->
     <div class="logs-box">
       <h3>📊 Acessos ao Painel</h3>
       <p><strong>Total de entradas:</strong> <span id="totalAcessos">0</span></p>
@@ -120,7 +117,6 @@
       <div id="listaLogs" style="margin-top:10px;max-height:150px;overflow-y:auto;"></div>
     </div>
 
-    <!-- 🎵 MÚSICA -->
     <h2>🎵 Nossa Música</h2>
     <div id="previewMusica" class="preview-card oculto">
       <strong>Pré-visualização:</strong>
@@ -131,7 +127,6 @@
     <button onclick="salvarMusica()">Salvar Música ✅</button>
     <div class="status" id="statusMusica"></div>
 
-    <!-- 📸 FOTOS -->
     <h2>📸 Adicionar Foto</h2>
     <input type="text" id="fotoUrl" placeholder="URL da foto (Supabase Storage)">
     <input type="text" id="fotoLegenda" placeholder="Legenda (ex: Nosso momento 💙)">
@@ -139,7 +134,6 @@
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">📸 Fotos Cadastradas:</h3>
     <div id="listaFotos"></div>
 
-    <!-- 💌 CARTINHAS -->
     <h2>💌 Escrever Cartinha</h2>
     <input type="text" id="cartaTitulo" placeholder="Título">
     <textarea id="cartaConteudo" rows="5" placeholder="Escreva tudo... quebra de linha funciona!"></textarea>
@@ -147,7 +141,6 @@
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">💌 Cartinhas Cadastradas:</h3>
     <div id="listaCartas"></div>
 
-    <!-- ✨ MENSAGENS -->
     <h2>✨ Mensagens / Frases</h2>
     <input type="text" id="msgTexto" placeholder="Sua mensagem">
     <input type="text" id="msgEmoji" placeholder="Emoji" value="✨">
@@ -160,9 +153,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // ==========================================
-    // 💙 CONFIGURAÇÕES — Login: pax0r / pax0r
-    // ==========================================
     const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
     const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
     const ADMIN_USUARIO = "pax0r";
@@ -171,21 +161,14 @@
     const { createClient } = window.supabase;
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ==========================================
-    // 🔐 LOGIN com LOGS
-    // ==========================================
     async function logar(){
       const u = document.getElementById("usuario").value.trim();
       const s = document.getElementById("senha").value.trim();
       
       if(u === ADMIN_USUARIO && s === ADMIN_SENHA){
-        // ✅ Login correto — registra acesso
         await registrarAcesso();
-        
         document.getElementById("telaLogin").classList.add("oculto");
         document.getElementById("telaPainel").classList.remove("oculto");
-        
-        // Carrega TUDO
         await carregarLogs();
         await carregarMusica();
         await carregarFotos();
@@ -203,9 +186,6 @@
       document.getElementById("senha").value = "";
     }
 
-    // ==========================================
-    // 📊 SISTEMA DE LOGS DE ACESSO
-    // ==========================================
     async function registrarAcesso(){
       const agora = new Date().toLocaleString("pt-BR");
       await supabase.from("logs_acesso").insert({ data_acesso: agora });
@@ -222,20 +202,14 @@
       }
     }
 
-    // ==========================================
-    // 🎵 MÚSICA
-    // ==========================================
     async function salvarMusica(){
       const nome = document.getElementById("musicaNome").value.trim() || "Nossa Música 💙";
       const url = document.getElementById("musicaUrl").value.trim();
       if(!url) return alert("Cole a URL do áudio!");
-      
       await supabase.from("configuracoes").upsert({ id:1, musica_nome:nome, musica_url:url });
-      
       document.getElementById("statusMusica").textContent = "✅ Música salva!";
       document.getElementById("musicaUrl").value = "";
       setTimeout(()=>document.getElementById("statusMusica").textContent = "", 3000);
-      
       await carregarMusica();
     }
 
@@ -247,16 +221,11 @@
       }
     }
 
-    // ==========================================
-    // 📸 FOTOS
-    // ==========================================
     async function adicionarFoto(){
       const url = document.getElementById("fotoUrl").value.trim();
       const legenda = document.getElementById("fotoLegenda").value.trim();
       if(!url) return alert("Coloque a URL da foto!");
-      
       await supabase.from("fotos").insert({ url, legenda });
-      
       document.getElementById("fotoUrl").value = "";
       document.getElementById("fotoLegenda").value = "";
       await carregarFotos();
@@ -272,34 +241,25 @@
     async function carregarFotos(){
       const {data} = await supabase.from("fotos").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaFotos");
-      
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma foto cadastrada ainda 💙</p>';
         return;
       }
-      
       container.innerHTML = data.map(f=>`
         <div class="item">
           <div style="flex:1;min-width:200px;">
             <strong>📸 ${f.legenda || 'Sem legenda'}</strong>
-            <div class="item-conteudo">
-              <img src="${f.url}" alt="${f.legenda}" style="max-width:200px;border-radius:6px;">
-            </div>
+            <div class="item-conteudo"><img src="${f.url}" alt="${f.legenda}" style="max-width:200px;border-radius:6px;"></div>
           </div>
           <button class="btn-excluir" onclick="excluirFoto('${f.id}')">Excluir</button>
         </div>`).join('');
     }
 
-    // ==========================================
-    // 💌 CARTINHAS
-    // ==========================================
     async function adicionarCarta(){
       const titulo = document.getElementById("cartaTitulo").value.trim();
       const conteudo = document.getElementById("cartaConteudo").value.trim();
       if(!titulo || !conteudo) return alert("Preencha tudo!");
-      
       await supabase.from("cartinhas").insert({ titulo, conteudo });
-      
       document.getElementById("cartaTitulo").value = "";
       document.getElementById("cartaConteudo").value = "";
       await carregarCartas();
@@ -315,12 +275,10 @@
     async function carregarCartas(){
       const {data} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaCartas");
-      
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>';
         return;
       }
-      
       container.innerHTML = data.map(c=>`
         <div class="item">
           <div style="flex:1;min-width:200px;">
@@ -331,16 +289,11 @@
         </div>`).join('');
     }
 
-    // ==========================================
-    // ✨ MENSAGENS
-    // ==========================================
     async function adicionarMensagem(){
       const texto = document.getElementById("msgTexto").value.trim();
       const emoji = document.getElementById("msgEmoji").value.trim() || "✨";
       if(!texto) return alert("Escreva a mensagem!");
-      
       await supabase.from("mensagens").insert({ texto, emoji });
-      
       document.getElementById("msgTexto").value = "";
       await carregarMsgs();
     }
@@ -355,12 +308,10 @@
     async function carregarMsgs(){
       const {data} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaMsgs");
-      
       if(!data || data.length === 0){
         container.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>';
         return;
       }
-      
       container.innerHTML = data.map(m=>`
         <div class="item">
           <span style="flex:1;">${m.emoji} ${m.texto}</span>

@@ -195,9 +195,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // ==========================================
-    // 💙 DADOS — carregados de forma segura
-    // ==========================================
     const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
     const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
     const DATA_INICIO = "2026-06-26";
@@ -236,7 +233,7 @@
 
     function tocarMusica(){
       const p = document.getElementById("player");
-      if(!MUSICA_URL) return alert("Cadastre uma música no painel admin! 💙");
+      if(!MUSICA_URL) return;
       p.paused ? p.play() : p.pause();
       document.getElementById("audioBtn").style.opacity = p.paused ? 1 : 0.5;
     }
@@ -258,7 +255,7 @@
         <div class="foto-card">
           <img src="${f.url}" alt="${f.legenda||''}" loading="lazy">
           <p>${f.legenda||'Nosso momento 💙'}</p>
-        </div>`).join('') || '<p class="vazio">Ainda sem fotos... envie pelo painel!</p>';
+        </div>`).join('') || '<p class="vazio">Ainda sem fotos...</p>';
     }
 
     async function carregarCartas(){
