@@ -7,112 +7,80 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{
-      font-family:'Segoe UI',sans-serif;
-      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      font-family:'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height:100vh;
-      padding:30px 20px;
-      color:#1e293b;
+      color:#fff;
+      text-align:center;
+      padding:40px 20px;
     }
     .caixa{
+      background:rgba(255,255,255,.12);
+      backdrop-filter:blur(10px);
+      border-radius:24px;
+      padding:40px 25px;
       max-width:600px;
       margin:0 auto;
-      background:#fff;
-      border-radius:24px;
-      padding:35px 25px;
-      box-shadow:0 8px 32px rgba(59,130,246,.12);
+      border:1px solid rgba(255,255,255,.18);
     }
-    h1{
-      text-align:center;
-      color:#3b82f6;
-      font-size:1.8rem;
-      margin-bottom:30px;
-    }
-    h2{
-      color:#3b82f6;
-      font-size:1.15rem;
-      margin:40px 0 15px;
-      padding-bottom:8px;
-      border-bottom:2px solid #dbeafe;
-    }
-    .musica-box{
-      background:#eff6ff;
+    h1{font-size:2.2rem; margin-bottom:10px;}
+    .sub{opacity:.9; margin-bottom:30px; font-size:1.1rem;}
+    .musica{
+      background:rgba(255,255,255,.15);
       border-radius:14px;
       padding:18px;
-      text-align:center;
+      margin:20px 0;
     }
-    .musica-box h3{color:#1e40af; margin-bottom:10px; font-size:1rem;}
-    audio{width:100%; border-radius:8px;}
+    audio{width:100%; margin-top:10px; border-radius:8px;}
     .foto-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
       gap:12px;
+      margin-top:15px;
     }
     .foto-card{
-      background:#eff6ff;
+      background:rgba(255,255,255,.15);
       border-radius:12px;
       overflow:hidden;
     }
-    .foto-card img{width:100%; height:140px; object-fit:cover; display:block;}
-    .foto-card p{padding:10px; font-size:.9rem; color:#475569; text-align:center;}
-    .video-card{
-      background:#eff6ff;
-      border-radius:12px;
-      overflow:hidden;
-      margin-bottom:12px;
-    }
-    .video-card video{width:100%; height:180px; object-fit:cover; display:block;}
-    .video-card p{padding:10px; font-size:.9rem; color:#475569; text-align:center;}
+    .foto-card img{width:100%; height:140px; object-fit:cover;}
+    .foto-card p{padding:8px; font-size:.9rem;}
     .cartinha{
-      background:linear-gradient(135deg,#fff8f8,#eff6ff);
+      background:rgba(255,255,255,.15);
       border-radius:14px;
       padding:20px;
-      margin-bottom:12px;
-      border-left:4px solid #3b82f6;
+      margin:12px 0;
+      text-align:left;
     }
-    .cartinha h3{color:#3b82f6; margin-bottom:10px; font-size:1rem;}
     .mensagem{
-      background:#eff6ff;
+      background:rgba(255,255,255,.15);
       border-radius:10px;
-      padding:14px 16px;
-      margin-bottom:8px;
-      font-size:1rem;
+      padding:14px;
+      margin:8px 0;
     }
-    .vazio{
-      text-align:center;
-      color:#94a3b8;
-      padding:25px;
-      font-style:italic;
-    }
-    .aviso-topo{
-      background:#dbeafe;
-      color:#1e40af;
-      padding:10px 14px;
-      border-radius:10px;
-      font-size:.9rem;
-      text-align:center;
-      margin-bottom:25px;
-    }
+    h2{margin:35px 0 10px; font-size:1.2rem; opacity:.95;}
+    .vazio{opacity:.6; font-style:italic; padding:20px;}
   </style>
 </head>
 <body>
   <div class="caixa">
-    <h1>💙 Nosso Site 💙</h1>
-    <div class="aviso-topo">💡 Depois de salvar no Painel → atualize esta página!</div>
+    <h1>💙 Para Você 💙</h1>
+    <p class="sub">Tudo o que sinto por você 💙</p>
 
     <h2>🎵 Nossa Música</h2>
-    <div id="musica">Carregando...</div>
+    <div id="musica"></div>
 
     <h2>✨ Mensagens</h2>
-    <div id="msgs">Carregando...</div>
+    <div id="msgs"></div>
 
-    <h2>📸 Fotos</h2>
-    <div id="fotos">Carregando...</div>
+    <h2>📸 Nossas Fotos</h2>
+    <div id="fotos"></div>
 
-    <h2>🎬 Vídeos</h2>
-    <div id="videos">Carregando...</div>
+    <h2>🎬 Nossos Vídeos</h2>
+    <div id="videos"></div>
 
     <h2>💌 Cartinhas</h2>
-    <div id="cartas">Carregando...</div>
+    <div id="cartas"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -133,47 +101,37 @@
       const el = document.getElementById("musica");
       try {
         const {data} = await supabase.from("configuracoes").select("*").limit(1).single();
-        if(!data || !data.musica_url){
-          el.innerHTML = '<p class="vazio">Nenhuma música ainda 🎵</p>';
-          return;
-        }
-        el.innerHTML = `
-          <div class="musica-box">
-            <h3>${data.musica_nome || 'Nossa Música 💙'}</h3>
-            <audio controls><source src="${data.musica_url}" type="audio/mpeg">
-          </div>`;
-      } catch { el.innerHTML = '<p class="vazio">Nenhuma música ainda 🎵</p>'; }
+        if(!data || !data.musica_url) throw 1;
+        el.innerHTML = `<div class="musica"><strong>${data.musica_nome||'Nossa Música 💙'}</strong><audio controls><source src="${data.musica_url}"></div>`;
+      } catch { el.innerHTML = '<p class="vazio">Nenhuma música cadastrada 🎵</p>'; }
     }
 
     async function carregarMsgs(){
       const el = document.getElementById("msgs");
       const {data} = await supabase.from("mensagens").select("*").order("created_at",{ascending:false});
-      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>'; return; }
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma mensagem ✨</p>'; return; }
       el.innerHTML = data.map(m=>`<div class="mensagem">${m.emoji} ${m.texto}</div>`).join('');
     }
 
     async function carregarFotos(){
       const el = document.getElementById("fotos");
       const {data} = await supabase.from("fotos").select("*").eq("tipo","foto").order("created_at",{ascending:false});
-      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma foto ainda 📸</p>'; return; }
-      el.innerHTML = '<div class="foto-grid">' + data.map(f=>`
-        <div class="foto-card"><img src="${f.url}" loading="lazy"><p>${f.legenda||'📸'}</p></div>`).join('') + '</div>';
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma foto 📸</p>'; return; }
+      el.innerHTML = '<div class="foto-grid">' + data.map(f=>`<div class="foto-card"><img src="${f.url}" loading="lazy"><p>${f.legenda||''}</p></div>`).join('') + '</div>';
     }
 
     async function carregarVideos(){
       const el = document.getElementById("videos");
       const {data} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at",{ascending:false});
-      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>'; return; }
-      el.innerHTML = data.map(v=>`
-        <div class="video-card"><video src="${v.url}" controls></video><p>${v.legenda||'🎬'}</p></div>`).join('');
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhum vídeo 🎬</p>'; return; }
+      el.innerHTML = data.map(v=>`<div class="foto-card"><video src="${v.url}" controls style="width:100%;height:140px;object-fit:cover;"></video><p>${v.legenda||''}</p></div>`).join('');
     }
 
     async function carregarCartas(){
       const el = document.getElementById("cartas");
       const {data} = await supabase.from("cartinhas").select("*").order("created_at",{ascending:false});
-      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>'; return; }
-      el.innerHTML = data.map(c=>`
-        <div class="cartinha"><h3>💌 ${c.titulo}</h3><p>${c.conteudo.replace(/\n/g,'<br>')}</p></div>`).join('');
+      if(!data || !data.length){ el.innerHTML = '<p class="vazio">Nenhuma cartinha 💌</p>'; return; }
+      el.innerHTML = data.map(c=>`<div class="cartinha"><h3>💌 ${c.titulo}</h3><p style="margin-top:10px;white-space:pre-line;">${c.conteudo}</p></div>`).join('');
     }
   </script>
 </body>

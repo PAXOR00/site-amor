@@ -7,136 +7,123 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{
-      font-family:'Segoe UI',sans-serif;
+      font-family:'Segoe UI', sans-serif;
       background:linear-gradient(135deg,#dbeafe,#eff6ff);
       min-height:100vh;
       padding:30px 20px;
-      color:#1e293b;
     }
     .caixa{
       max-width:600px;
       margin:0 auto;
       background:#fff;
       border-radius:24px;
-      padding:35px 25px;
+      padding:30px 20px;
       box-shadow:0 8px 32px rgba(59,130,246,.12);
     }
-    h1{text-align:center; color:#3b82f6; font-size:1.7rem; margin-bottom:25px;}
-    h2{color:#3b82f6; font-size:1.1rem; margin:35px 0 12px; padding-top:20px; border-top:2px solid #f1f5f9;}
+    h1{text-align:center; color:#3b82f6; margin-bottom:25px;}
+    h2{color:#3b82f6; font-size:1.05rem; margin:30px 0 10px; padding-top:15px; border-top:1px solid #eee;}
     input,textarea,button{
       width:100%;
-      padding:13px 15px;
-      margin:7px 0;
-      border-radius:10px;
+      padding:12px;
+      margin:6px 0;
+      border-radius:8px;
       border:1px solid #bfdbfe;
       font-size:1rem;
-      font-family:inherit;
     }
-    input[type="file"]{background:#eff6ff; padding:10px;}
+    input[type="file"]{background:#eff6ff;}
     button{
       background:#3b82f6;
       color:#fff;
       border:none;
-      font-weight:500;
       cursor:pointer;
-      margin-top:10px;
+      font-weight:500;
+      margin-top:8px;
     }
     button:hover{opacity:.92}
     .btn-excluir{
       background:#ef4444;
       width:auto;
-      padding:8px 12px;
+      padding:6px 10px;
       font-size:.85rem;
       margin:0;
     }
-    .aviso{
+    #aviso{
       position:fixed;
-      top:15px;
+      top:12px;
       left:50%;
       transform:translateX(-50%);
       padding:12px 20px;
-      border-radius:12px;
+      border-radius:10px;
       color:#fff;
       font-weight:500;
       z-index:999;
       opacity:0;
       transition:opacity .3s;
-      box-shadow:0 4px 16px rgba(0,0,0,.15);
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
       max-width:90%;
       text-align:center;
     }
-    .aviso.verde{background:#10b981; opacity:1;}
-    .aviso.vermelho{background:#ef4444; opacity:1;}
-    .logs-box{
-      background:#f0fdf4;
-      border-left:4px solid #10b981;
-      padding:15px;
-      border-radius:10px;
-      margin-bottom:20px;
-    }
-    .logs-box p{margin:4px 0; font-size:.95rem;}
+    #aviso.ok{background:#10b981; opacity:1;}
+    #aviso.erro{background:#ef4444; opacity:1;}
     .item{
       background:#f8fafc;
-      padding:14px;
-      border-radius:10px;
-      margin:10px 0;
+      padding:12px;
+      border-radius:8px;
+      margin:8px 0;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      flex-wrap:wrap;
       gap:8px;
+      flex-wrap:wrap;
     }
-    .item-conteudo{width:100%; margin-top:8px; color:#64748b; font-size:.9rem;}
-    .vazio{color:#94a3b8; text-align:center; padding:20px; font-style:italic;}
-    .barra{height:7px; background:#dbeafe; border-radius:4px; overflow:hidden; margin:8px 0; display:none;}
+    .barra{height:6px; background:#dbeafe; border-radius:3px; overflow:hidden; margin:6px 0; display:none;}
     .barra span{display:block; height:100%; background:#3b82f6; width:0%; transition:width .3s;}
+    .logs{background:#f0fdf4; border-left:4px solid #10b981; padding:12px; border-radius:8px; margin-bottom:20px; font-size:.9rem;}
   </style>
 </head>
 <body>
 
-  <div class="aviso" id="aviso"></div>
+  <div id="aviso"></div>
 
   <div class="caixa">
-    <h1>💙 Gerenciar Nosso Site</h1>
+    <h1>💙 Painel de Controle</h1>
 
-    <div class="logs-box">
-      <h3>📊 Acessos</h3>
-      <p>Total: <span id="total">0</span></p>
-      <p>Último: <span id="ultimo">Carregando...</span></p>
-      <div id="listaLogs" style="margin-top:8px;max-height:120px;overflow:auto;font-size:.85rem;"></div>
+    <div class="logs">
+      <strong>📊 Acessos:</strong> <span id="total">0</span> | 
+      <strong>Último:</strong> <span id="ultimo">---</span>
     </div>
 
-    <h2>🎵 Nossa Música</h2>
+    <h2>🎵 Música</h2>
     <input type="text" id="musicaNome" placeholder="Nome da música">
     <input type="file" id="musicaArq" accept="audio/*">
-    <div class="barra" id="barraMus"><span></span></div>
+    <div class="barra" id="bm"><span></span></div>
     <button onclick="salvarMusica()">Salvar Música ✅</button>
 
     <h2>📸 Foto</h2>
     <input type="file" id="fotoArq" accept="image/*">
     <input type="text" id="fotoLeg" placeholder="Legenda">
-    <div class="barra" id="barraFoto"><span></span></div>
+    <div class="barra" id="bf"><span></span></div>
     <button onclick="salvarFoto()">Salvar Foto ✅</button>
-    <div id="listaFotos"></div>
+    <div id="lf"></div>
 
     <h2>🎬 Vídeo</h2>
     <input type="file" id="videoArq" accept="video/*">
     <input type="text" id="videoLeg" placeholder="Legenda">
-    <div class="barra" id="barraVid"><span></span></div>
+    <div class="barra" id="bv"><span></span></div>
     <button onclick="salvarVideo()">Salvar Vídeo ✅</button>
-    <div id="listaVideos"></div>
+    <div id="lv"></div>
 
     <h2>💌 Cartinha</h2>
     <input type="text" id="cartaTit" placeholder="Título">
     <textarea id="cartaConteudo" rows="4" placeholder="Sua mensagem..."></textarea>
     <button onclick="salvarCarta()">Salvar Cartinha ✅</button>
-    <div id="listaCartas"></div>
+    <div id="lc"></div>
 
     <h2>✨ Mensagem</h2>
     <input type="text" id="msgTexto" placeholder="Mensagem">
     <input type="text" id="msgEmoji" placeholder="Emoji" value="✨">
-    <button onclick="salvarMsg()">Salvar Mensagem ✅</button>
-    <div id="listaMsgs"></div>
+    <button onclick="salvarMsg()">Salvar ✅</button>
+    <div id="lm"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -146,25 +133,25 @@
     const BUCKET = "site-amor";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function aviso(texto, ok=true){
+    function aviso(txt, ok=true){
       const el = document.getElementById("aviso");
-      el.textContent = texto;
-      el.className = "aviso " + (ok?"verde":"vermelho");
-      setTimeout(()=>el.style.opacity="0", 3500);
+      el.textContent = txt;
+      el.className = ok ? "ok" : "erro";
+      setTimeout(()=>el.style.opacity="0", 4000);
     }
 
-    async function subir(arq, pasta){
-      const nome = Date.now() + "_" + arq.name.replace(/[^a-z0-9.]/gi,'_');
-      const {data, error} = await supabase.storage.from(BUCKET).upload(pasta+"/"+nome, arq);
+    async function enviarArquivo(arquivo, pasta){
+      const nomeArq = Date.now() + "_" + arquivo.name.replace(/[^a-z0-9.]/gi,'_');
+      const caminho = pasta + "/" + nomeArq;
+      const {data, error} = await supabase.storage.from(BUCKET).upload(caminho, arquivo);
       if(error) throw error;
-      const {data:{publicUrl}} = supabase.storage.from(BUCKET).getPublicUrl(pasta+"/"+nome);
+      const {data:{publicUrl}} = supabase.storage.from(BUCKET).getPublicUrl(caminho);
       return publicUrl;
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
       try{
-        const agora = new Date().toLocaleString("pt-BR");
-        await supabase.from("logs_acesso").insert({data_acesso:agora});
+        await supabase.from("logs_acesso").insert({data_acesso: new Date().toLocaleString("pt-BR")});
       }catch(e){}
       try{
         const {data} = await supabase.from("logs_acesso").select("*").order("id",{ascending:false});
@@ -173,119 +160,118 @@
           document.getElementById("ultimo").textContent = data[0].data_acesso;
         }
       }catch(e){}
-      await listarFotos(); await listarVideos(); await listarCartas(); await listarMsgs();
+      await listarTudo();
     });
 
     async function salvarMusica(){
       const nome = document.getElementById("musicaNome").value.trim() || "Nossa Música 💙";
       const arq = document.getElementById("musicaArq").files[0];
-      if(!arq) return aviso("Escolha um arquivo!", false);
+      if(!arq) return aviso("⚠️ Escolha um arquivo!", false);
       try{
-        document.getElementById("barraMus").style.display="block";
-        document.querySelector("#barraMus span").style.width="50%";
-        const url = await subir(arq, "musicas");
-        document.querySelector("#barraMus span").style.width="100%";
-        await supabase.from("configuracoes").upsert({id:1, musica_nome:nome, musica_url:url});
-        aviso("✅ MÚSICA SALVA! Atualize a página principal!");
+        document.getElementById("bm").style.display="block";
+        document.querySelector("#bm span").style.width="50%";
+        const url = await enviarArquivo(arq, "musicas");
+        document.querySelector("#bm span").style.width="100%";
+        const {error} = await supabase.from("configuracoes").upsert({id:1, musica_nome:nome, musica_url:url});
+        if(error) throw error;
+        aviso("✅ SALVO! Atualize a página principal!");
         document.getElementById("musicaNome").value="";
         document.getElementById("musicaArq").value="";
-        setTimeout(()=>document.getElementById("barraMus").style.display="none",600);
-      }catch(e){ aviso("❌ Erro: "+e.message, false); document.getElementById("barraMus").style.display="none"; }
+        setTimeout(()=>document.getElementById("bm").style.display="none",600);
+      }catch(e){ aviso("❌ ERRO: "+e.message, false); document.getElementById("bm").style.display="none"; }
     }
 
     async function salvarFoto(){
       const arq = document.getElementById("fotoArq").files[0];
       const leg = document.getElementById("fotoLeg").value.trim();
-      if(!arq) return aviso("Escolha uma foto!", false);
+      if(!arq) return aviso("⚠️ Escolha uma foto!", false);
       try{
-        document.getElementById("barraFoto").style.display="block";
-        document.querySelector("#barraFoto span").style.width="50%";
-        const url = await subir(arq, "fotos");
-        document.querySelector("#barraFoto span").style.width="100%";
-        await supabase.from("fotos").insert({url, legenda:leg, tipo:"foto"});
+        document.getElementById("bf").style.display="block";
+        document.querySelector("#bf span").style.width="50%";
+        const url = await enviarArquivo(arq, "fotos");
+        document.querySelector("#bf span").style.width="100%";
+        const {error} = await supabase.from("fotos").insert({url, legenda:leg, tipo:"foto"});
+        if(error) throw error;
         aviso("✅ FOTO SALVA! Atualize a página principal!");
         document.getElementById("fotoArq").value="";
         document.getElementById("fotoLeg").value="";
-        setTimeout(()=>document.getElementById("barraFoto").style.display="none",600);
+        setTimeout(()=>document.getElementById("bf").style.display="none",600);
         await listarFotos();
-      }catch(e){ aviso("❌ Erro: "+e.message, false); document.getElementById("barraFoto").style.display="none"; }
+      }catch(e){ aviso("❌ ERRO: "+e.message, false); document.getElementById("bf").style.display="none"; }
     }
 
     async function salvarVideo(){
       const arq = document.getElementById("videoArq").files[0];
       const leg = document.getElementById("videoLeg").value.trim();
-      if(!arq) return aviso("Escolha um vídeo!", false);
+      if(!arq) return aviso("⚠️ Escolha um vídeo!", false);
       try{
-        document.getElementById("barraVid").style.display="block";
-        document.querySelector("#barraVid span").style.width="50%";
-        const url = await subir(arq, "videos");
-        document.querySelector("#barraVid span").style.width="100%";
-        await supabase.from("fotos").insert({url, legenda:leg, tipo:"video"});
+        document.getElementById("bv").style.display="block";
+        document.querySelector("#bv span").style.width="50%";
+        const url = await enviarArquivo(arq, "videos");
+        document.querySelector("#bv span").style.width="100%";
+        const {error} = await supabase.from("fotos").insert({url, legenda:leg, tipo:"video"});
+        if(error) throw error;
         aviso("✅ VÍDEO SALVO! Atualize a página principal!");
         document.getElementById("videoArq").value="";
         document.getElementById("videoLeg").value="";
-        setTimeout(()=>document.getElementById("barraVid").style.display="none",600);
+        setTimeout(()=>document.getElementById("bv").style.display="none",600);
         await listarVideos();
-      }catch(e){ aviso("❌ Erro: "+e.message, false); document.getElementById("barraVid").style.display="none"; }
+      }catch(e){ aviso("❌ ERRO: "+e.message, false); document.getElementById("bv").style.display="none"; }
     }
 
     async function salvarCarta(){
       const tit = document.getElementById("cartaTit").value.trim();
       const cnt = document.getElementById("cartaConteudo").value.trim();
-      if(!tit || !cnt) return aviso("Preencha tudo!", false);
+      if(!tit || !cnt) return aviso("⚠️ Preencha tudo!", false);
       try{
-        await supabase.from("cartinhas").insert({titulo:tit, conteudo:cnt});
+        const {error} = await supabase.from("cartinhas").insert({titulo:tit, conteudo:cnt});
+        if(error) throw error;
         aviso("✅ CARTINHA SALVA! Atualize a página principal!");
         document.getElementById("cartaTit").value="";
         document.getElementById("cartaConteudo").value="";
         await listarCartas();
-      }catch(e){ aviso("❌ Erro: "+e.message, false); }
+      }catch(e){ aviso("❌ ERRO: "+e.message, false); }
     }
 
     async function salvarMsg(){
       const txt = document.getElementById("msgTexto").value.trim();
       const emj = document.getElementById("msgEmoji").value.trim() || "✨";
-      if(!txt) return aviso("Escreva a mensagem!", false);
+      if(!txt) return aviso("⚠️ Escreva a mensagem!", false);
       try{
-        await supabase.from("mensagens").insert({texto:txt, emoji:emj});
+        const {error} = await supabase.from("mensagens").insert({texto:txt, emoji:emj});
+        if(error) throw error;
         aviso("✅ MENSAGEM SALVA! Atualize a página principal!");
         document.getElementById("msgTexto").value="";
         await listarMsgs();
-      }catch(e){ aviso("❌ Erro: "+e.message, false); }
+      }catch(e){ aviso("❌ ERRO: "+e.message, false); }
+    }
+
+    async function excluir(id, tabela){
+      if(!confirm("Excluir mesmo?")) return;
+      await supabase.from(tabela).delete().eq("id",id);
+      aviso("✅ Excluído!");
+      await listarTudo();
     }
 
     async function listarFotos(){
       const {data} = await supabase.from("fotos").select("*").eq("tipo","foto").order("created_at",{ascending:false});
-      const el = document.getElementById("listaFotos");
-      if(!data || !data.length){ el.innerHTML = ""; return; }
-      el.innerHTML = data.map(f=>`<div class="item"><div><strong>📸 ${f.legenda||''}</strong></div><button class="btn-excluir" onclick="excluir(${f.id},'foto')">Excluir</button></div>`).join('');
+      document.getElementById("lf").innerHTML = data?.map(f=>`<div class="item"><span>📸 ${f.legenda||''}</span><button class="btn-excluir" onclick="excluir(${f.id},'fotos')">Excluir</button></div>`).join('')||'';
     }
     async function listarVideos(){
       const {data} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at",{ascending:false});
-      const el = document.getElementById("listaVideos");
-      if(!data || !data.length){ el.innerHTML = ""; return; }
-      el.innerHTML = data.map(v=>`<div class="item"><div><strong>🎬 ${v.legenda||''}</strong></div><button class="btn-excluir" onclick="excluir(${v.id},'video')">Excluir</button></div>`).join('');
+      document.getElementById("lv").innerHTML = data?.map(v=>`<div class="item"><span>🎬 ${v.legenda||''}</span><button class="btn-excluir" onclick="excluir(${v.id},'fotos')">Excluir</button></div>`).join('')||'';
     }
     async function listarCartas(){
       const {data} = await supabase.from("cartinhas").select("*").order("created_at",{ascending:false});
-      const el = document.getElementById("listaCartas");
-      if(!data || !data.length){ el.innerHTML = ""; return; }
-      el.innerHTML = data.map(c=>`<div class="item"><div><strong>💌 ${c.titulo}</strong></div><button class="btn-excluir" onclick="excluir(${c.id},'carta')">Excluir</button></div>`).join('');
+      document.getElementById("lc").innerHTML = data?.map(c=>`<div class="item"><span>💌 ${c.titulo}</span><button class="btn-excluir" onclick="excluir(${c.id},'cartinhas')">Excluir</button></div>`).join('')||'';
     }
     async function listarMsgs(){
       const {data} = await supabase.from("mensagens").select("*").order("created_at",{ascending:false});
-      const el = document.getElementById("listaMsgs");
-      if(!data || !data.length){ el.innerHTML = ""; return; }
-      el.innerHTML = data.map(m=>`<div class="item"><span>${m.emoji} ${m.texto}</span><button class="btn-excluir" onclick="excluir(${m.id},'msg')">Excluir</button></div>`).join('');
+      document.getElementById("lm").innerHTML = data?.map(m=>`<div class="item"><span>${m.emoji} ${m.texto}</span><button class="btn-excluir" onclick="excluir(${m.id},'mensagens')">Excluir</button></div>`).join('')||'';
     }
-    window.excluir = async function(id, tipo){
-      if(!confirm("Excluir?")) return;
-      if(tipo==="carta") await supabase.from("cartinhas").delete().eq("id",id);
-      else if(tipo==="msg") await supabase.from("mensagens").delete().eq("id",id);
-      else await supabase.from("fotos").delete().eq("id",id);
-      aviso("✅ Excluído!");
+    async function listarTudo(){
       await listarFotos(); await listarVideos(); await listarCartas(); await listarMsgs();
-    };
+    }
   </script>
 </body>
 </html>
