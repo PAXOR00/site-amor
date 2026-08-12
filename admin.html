@@ -68,8 +68,22 @@
       gap: 8px;
     }
     .item-conteudo { width: 100%; margin-top: 8px; color: var(--text-soft); font-size: 0.95rem; }
-    .status { margin-top: 10px; color: var(--success); font-size: 0.9rem; font-weight:500; }
-    .erro { color: var(--danger); }
+    .aviso-global {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .aviso-sucesso { background: var(--success); opacity: 1; }
+    .aviso-erro { background: var(--danger); opacity: 1; }
     .logs-box {
       background: #f0fdf4;
       border-left: 4px solid var(--success);
@@ -94,10 +108,11 @@
 </head>
 <body>
 
+  <div class="aviso-global" id="avisoGlobal"></div>
+
   <div class="caixa">
     <h1>💙 Gerenciar Nosso Site</h1>
 
-    <!-- 📊 LOGS DE ACESSO -->
     <div class="logs-box">
       <h3>📊 Acessos ao Painel</h3>
       <p><strong>Total de entradas:</strong> <span id="totalAcessos">0</span></p>
@@ -105,7 +120,6 @@
       <div id="listaLogs" style="margin-top:10px;max-height:150px;overflow-y:auto;"></div>
     </div>
 
-    <!-- 🎵 MÚSICA — UPLOAD DE ARQUIVO -->
     <h2>🎵 Nossa Música</h2>
     <div id="previewMusica" class="preview-card" style="display:none;">
       <strong>Salvo ✅:</strong>
@@ -115,9 +129,7 @@
     <input type="file" id="musicaArquivo" accept="audio/*">
     <div class="barra" id="barraMusica"><span id="pMusica"></span></div>
     <button onclick="salvarMusica()">Salvar Música ✅</button>
-    <div class="status" id="statusMusica"></div>
 
-    <!-- 📸 FOTOS — UPLOAD DE ARQUIVO -->
     <h2>📸 Adicionar Foto</h2>
     <input type="file" id="fotoArquivo" accept="image/*">
     <input type="text" id="fotoLegenda" placeholder="Legenda (ex: Nosso momento 💙)">
@@ -126,7 +138,6 @@
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">📸 Fotos Cadastradas:</h3>
     <div id="listaFotos"></div>
 
-    <!-- 🎬 VÍDEOS -->
     <h2>🎬 Adicionar Vídeo</h2>
     <input type="file" id="videoArquivo" accept="video/*">
     <input type="text" id="videoLegenda" placeholder="Legenda do vídeo">
@@ -135,7 +146,6 @@
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">🎬 Vídeos Cadastrados:</h3>
     <div id="listaVideos"></div>
 
-    <!-- 💌 CARTINHAS -->
     <h2>💌 Escrever Cartinha</h2>
     <input type="text" id="cartaTitulo" placeholder="Título">
     <textarea id="cartaConteudo" rows="5" placeholder="Escreva tudo... quebra de linha funciona!"></textarea>
@@ -143,7 +153,6 @@
     <h3 style="margin-top:20px; font-size:0.95rem; color:var(--text-soft);">💌 Cartinhas Cadastradas:</h3>
     <div id="listaCartas"></div>
 
-    <!-- ✨ MENSAGENS -->
     <h2>✨ Mensagens / Frases</h2>
     <input type="text" id="msgTexto" placeholder="Sua mensagem">
     <input type="text" id="msgEmoji" placeholder="Emoji" value="✨">
@@ -154,19 +163,21 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // ==========================================
-    // 💙 CONFIGURAÇÕES
-    // ==========================================
     const SUPABASE_URL = atob("aHR0cHM6Ly9ocmR5aG Ric2Nkem9laG91aXRleC5zdXBhYmFzZS5jbw==");
     const SUPABASE_KEY = atob("c2Jfc2VjcmV0XWk4Smd0LXp2ZGx4eTBPcTNFCG9zZ19aYkk0XzV3Qw==");
-    const BUCKET = "site-amor"; // Pasta onde os arquivos serão salvos
+    const BUCKET = "site-amor";
 
     const { createClient } = window.supabase;
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ==========================================
-    // 🚀 CARREGA TUDO AO ABRIR
-    // ==========================================
+    // AVISO GLOBAL APARECE NO TOPO DA TELA
+    function mostrarAviso(texto, tipo = 'sucesso'){
+      const el = document.getElementById('avisoGlobal');
+      el.textContent = texto;
+      el.className = `aviso-global aviso-${tipo}`;
+      setTimeout(()=> el.style.opacity = '0', 3500);
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       await registrarAcesso();
       await carregarLogs();
@@ -177,133 +188,87 @@
       await carregarMsgs();
     });
 
-    // ==========================================
-    // 📊 LOGS — CORRIGIDO!
-    // ==========================================
     async function registrarAcesso(){
       try {
         const agora = new Date().toLocaleString("pt-BR");
         await supabase.from("logs_acesso").insert({ data_acesso: agora });
-      } catch(e) {
-        console.log("Logs: ", e.message);
-      }
+      } catch(e) {}
     }
 
     async function carregarLogs(){
       try {
-        const {data, error} = await supabase.from("logs_acesso").select("*").order("id",{ascending:false});
-        if(error) throw error;
+        const {data} = await supabase.from("logs_acesso").select("*").order("id",{ascending:false});
         if(data && data.length > 0){
           document.getElementById("totalAcessos").textContent = data.length;
           document.getElementById("ultimoAcesso").textContent = data[0].data_acesso;
-          document.getElementById("listaLogs").innerHTML = data.slice(0,5).map(l=>
-            `<p class="log-data">• ${l.data_acesso}</p>`
-          ).join('');
+          document.getElementById("listaLogs").innerHTML = data.slice(0,5).map(l=>`<p class="log-data">• ${l.data_acesso}</p>`).join('');
         } else {
-          document.getElementById("ultimoAcesso").textContent = "Primeiro acesso! ✅";
-          document.getElementById("listaLogs").innerHTML = '<p class="vazio">Aguardando próximos acessos...</p>';
+          document.getElementById("ultimoAcesso").textContent = "Primeiro acesso registrado!";
         }
-      } catch(e) {
-        document.getElementById("ultimoAcesso").innerHTML = `<span style="color:var(--danger)">⚠️ Crie a tabela logs_acesso no Supabase</span>`;
-      }
+      } catch(e) {}
     }
 
-    // ==========================================
-    // 📤 FUNÇÃO DE UPLOAD — SELECIONA ARQUIVO DIRETO!
-    // ==========================================
     async function uploadArquivo(arquivo, pasta){
       const nome = Date.now() + "_" + arquivo.name.replace(/[^a-z0-9.]/gi, '_');
       const caminho = `${pasta}/${nome}`;
-      
-      const {data, error} = await supabase.storage
-        .from(BUCKET)
-        .upload(caminho, arquivo, { upsert: true });
-      
+      const {data, error} = await supabase.storage.from(BUCKET).upload(caminho, arquivo, { upsert: true });
       if(error) throw error;
-      
-      const {data:{publicUrl}} = supabase.storage
-        .from(BUCKET)
-        .getPublicUrl(caminho);
-      
+      const {data:{publicUrl}} = supabase.storage.from(BUCKET).getPublicUrl(caminho);
       return publicUrl;
     }
 
-    // ==========================================
-    // 🎵 MÚSICA — UPLOAD DE ARQUIVO
-    // ==========================================
     async function salvarMusica(){
       const nome = document.getElementById("musicaNome").value.trim() || "Nossa Música 💙";
       const arquivo = document.getElementById("musicaArquivo").files[0];
-      
-      if(!arquivo) return alert("Escolha um arquivo de música! 🎵");
-      
+      if(!arquivo) return mostrarAviso("Escolha um arquivo de música!", "erro");
+
       try {
         document.getElementById("barraMusica").style.display = "block";
         document.getElementById("pMusica").style.width = "50%";
-        
         const url = await uploadArquivo(arquivo, "musicas");
-        
         document.getElementById("pMusica").style.width = "100%";
+        await supabase.from("configuracoes").upsert({ id:1, musica_nome:nome, musica_url:url });
         
-        const {error} = await supabase.from("configuracoes").upsert({ 
-          id: 1, 
-          musica_nome: nome, 
-          musica_url: url 
-        });
-        if(error) throw error;
-        
-        document.getElementById("statusMusica").textContent = "✅ Música salva com sucesso!";
+        mostrarAviso("✅ MÚSICA SALVA COM SUCESSO! Acesse a página principal para ver 🎵", "sucesso");
         document.getElementById("musicaArquivo").value = "";
         document.getElementById("musicaNome").value = "";
         document.getElementById("barraMusica").style.display = "none";
-        
         await carregarMusica();
-        setTimeout(()=>document.getElementById("statusMusica").textContent = "", 4000);
       } catch(e) {
-        document.getElementById("statusMusica").innerHTML = `<span class="erro">❌ Erro: ${e.message}</span>`;
+        mostrarAviso(`❌ ERRO: ${e.message}`, "erro");
         document.getElementById("barraMusica").style.display = "none";
       }
     }
 
     async function carregarMusica(){
       try {
-        const {data, error} = await supabase.from("configuracoes").select("*").limit(1).single();
-        if(error) return;
+        const {data} = await supabase.from("configuracoes").select("*").limit(1).single();
         if(data && data.musica_url){
           document.getElementById("previewMusica").style.display = "block";
-          document.getElementById("nomeMusicaAtual").textContent = `🎵 ${data.musica_nome || 'Sem nome'}`;
+          document.getElementById("nomeMusicaAtual").textContent = `🎵 ${data.musica_nome}`;
         }
       } catch(e) {}
     }
 
-    // ==========================================
-    // 📸 FOTOS — UPLOAD DE ARQUIVO
-    // ==========================================
     async function adicionarFoto(){
       const arquivo = document.getElementById("fotoArquivo").files[0];
       const legenda = document.getElementById("fotoLegenda").value.trim();
-      
-      if(!arquivo) return alert("Escolha uma foto primeiro! 📸");
-      
+      if(!arquivo) return mostrarAviso("Escolha uma foto primeiro!", "erro");
+
       try {
         document.getElementById("barraFoto").style.display = "block";
         document.getElementById("pFoto").style.width = "50%";
-        
         const url = await uploadArquivo(arquivo, "fotos");
-        
         document.getElementById("pFoto").style.width = "100%";
+        await supabase.from("fotos").insert({ url, legenda });
         
-        const {error} = await supabase.from("fotos").insert({ url, legenda });
-        if(error) throw error;
-        
+        mostrarAviso("✅ FOTO SALVA COM SUCESSO! Atualize a página principal 📸", "sucesso");
         document.getElementById("fotoArquivo").value = "";
         document.getElementById("fotoLegenda").value = "";
         document.getElementById("barraFoto").style.display = "none";
-        
         await carregarFotos();
-        alert("✅ Foto salva com sucesso!");
       } catch(e) {
-        alert("❌ Erro: " + e.message);
+        mostrarAviso(`❌ ERRO: ${e.message}`, "erro");
         document.getElementById("barraFoto").style.display = "none";
       }
     }
@@ -312,57 +277,36 @@
       if(confirm("Excluir essa foto?")){
         await supabase.from("fotos").delete().eq("id", id);
         await carregarFotos();
+        mostrarAviso("✅ Foto excluída!", "sucesso");
       }
     }
 
     async function carregarFotos(){
-      const {data, error} = await supabase.from("fotos").select("*").order("created_at", {ascending:false});
+      const {data} = await supabase.from("fotos").select("*").eq("tipo","foto").order("created_at", {ascending:false});
       const container = document.getElementById("listaFotos");
-      
-      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
-      if(!data || data.length === 0){
-        container.innerHTML = '<p class="vazio">Nenhuma foto cadastrada ainda 💙</p>';
-        return;
-      }
-      
-      container.innerHTML = data.map(f=>`
-        <div class="item">
-          <div style="flex:1;min-width:200px;">
-            <strong>📸 ${f.legenda || 'Sem legenda'}</strong>
-            <div class="item-conteudo"><img src="${f.url}" alt="${f.legenda}" loading="lazy"></div>
-          </div>
-          <button class="btn-excluir" onclick="excluirFoto('${f.id}')">Excluir</button>
-        </div>`).join('');
+      if(!data || data.length === 0){ container.innerHTML = '<p class="vazio">Nenhuma foto ainda 💙</p>'; return; }
+      container.innerHTML = data.map(f=>`<div class="item"><div style="flex:1;"><strong>📸 ${f.legenda||'Sem legenda'}</strong><div class="item-conteudo"><img src="${f.url}" loading="lazy"></div></div><button class="btn-excluir" onclick="excluirFoto('${f.id}')">Excluir</button></div>`).join('');
     }
 
-    // ==========================================
-    // 🎬 VÍDEOS — UPLOAD DE ARQUIVO
-    // ==========================================
     async function adicionarVideo(){
       const arquivo = document.getElementById("videoArquivo").files[0];
       const legenda = document.getElementById("videoLegenda").value.trim();
-      
-      if(!arquivo) return alert("Escolha um vídeo primeiro! 🎬");
-      
+      if(!arquivo) return mostrarAviso("Escolha um vídeo primeiro!", "erro");
+
       try {
         document.getElementById("barraVideo").style.display = "block";
         document.getElementById("pVideo").style.width = "50%";
-        
         const url = await uploadArquivo(arquivo, "videos");
-        
         document.getElementById("pVideo").style.width = "100%";
+        await supabase.from("fotos").insert({ url, legenda, tipo:"video" });
         
-        const {error} = await supabase.from("fotos").insert({ url, legenda, tipo: "video" });
-        if(error) throw error;
-        
+        mostrarAviso("✅ VÍDEO SALVO COM SUCESSO! 🎬", "sucesso");
         document.getElementById("videoArquivo").value = "";
         document.getElementById("videoLegenda").value = "";
         document.getElementById("barraVideo").style.display = "none";
-        
         await carregarVideos();
-        alert("✅ Vídeo salvo com sucesso!");
       } catch(e) {
-        alert("❌ Erro: " + e.message);
+        mostrarAviso(`❌ ERRO: ${e.message}`, "erro");
         document.getElementById("barraVideo").style.display = "none";
       }
     }
@@ -371,111 +315,72 @@
       if(confirm("Excluir esse vídeo?")){
         await supabase.from("fotos").delete().eq("id", id);
         await carregarVideos();
+        mostrarAviso("✅ Vídeo excluído!", "sucesso");
       }
     }
 
     async function carregarVideos(){
-      const {data, error} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at", {ascending:false});
+      const {data} = await supabase.from("fotos").select("*").eq("tipo","video").order("created_at", {ascending:false});
       const container = document.getElementById("listaVideos");
-      
-      if(error) return;
-      if(!data || data.length === 0){
-        container.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>';
-        return;
-      }
-      
-      container.innerHTML = data.map(v=>`
-        <div class="item">
-          <div style="flex:1;min-width:200px;">
-            <strong>🎬 ${v.legenda || 'Sem legenda'}</strong>
-            <div class="item-conteudo"><video src="${v.url}" controls style="max-width:250px;border-radius:6px;"></video></div>
-          </div>
-          <button class="btn-excluir" onclick="excluirVideo('${v.id}')">Excluir</button>
-        </div>`).join('');
+      if(!data || data.length === 0){ container.innerHTML = '<p class="vazio">Nenhum vídeo ainda 🎬</p>'; return; }
+      container.innerHTML = data.map(v=>`<div class="item"><div style="flex:1;"><strong>🎬 ${v.legenda||'Sem legenda'}</strong><div class="item-conteudo"><video src="${v.url}" controls></video></div></div><button class="btn-excluir" onclick="excluirVideo('${v.id}')">Excluir</button></div>`).join('');
     }
 
-    // ==========================================
-    // 💌 CARTINHAS
-    // ==========================================
     async function adicionarCarta(){
       const titulo = document.getElementById("cartaTitulo").value.trim();
       const conteudo = document.getElementById("cartaConteudo").value.trim();
-      if(!titulo || !conteudo) return alert("Preencha tudo!");
-      
-      const {error} = await supabase.from("cartinhas").insert({ titulo, conteudo });
-      if(error) return alert("❌ Erro: " + error.message);
-      
-      document.getElementById("cartaTitulo").value = "";
-      document.getElementById("cartaConteudo").value = "";
-      await carregarCartas();
-      alert("✅ Cartinha salva!");
+      if(!titulo || !conteudo) return mostrarAviso("Preencha título e conteúdo!", "erro");
+
+      try {
+        await supabase.from("cartinhas").insert({ titulo, conteudo });
+        mostrarAviso("✅ CARTINHA SALVA COM SUCESSO! 💌", "sucesso");
+        document.getElementById("cartaTitulo").value = "";
+        document.getElementById("cartaConteudo").value = "";
+        await carregarCartas();
+      } catch(e) { mostrarAviso(`❌ ERRO: ${e.message}`, "erro"); }
     }
 
     async function excluirCarta(id){
       if(confirm("Excluir essa carta?")){
         await supabase.from("cartinhas").delete().eq("id", id);
         await carregarCartas();
+        mostrarAviso("✅ Cartinha excluída!", "sucesso");
       }
     }
 
     async function carregarCartas(){
-      const {data, error} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
+      const {data} = await supabase.from("cartinhas").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaCartas");
-      
-      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
-      if(!data || data.length === 0){
-        container.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>';
-        return;
-      }
-      
-      container.innerHTML = data.map(c=>`
-        <div class="item">
-          <div style="flex:1;min-width:200px;">
-            <strong>💌 ${c.titulo}</strong>
-            <div class="item-conteudo">${c.conteudo.replace(/\n/g, '<br>')}</div>
-          </div>
-          <button class="btn-excluir" onclick="excluirCarta('${c.id}')">Excluir</button>
-        </div>`).join('');
+      if(!data || data.length === 0){ container.innerHTML = '<p class="vazio">Nenhuma cartinha ainda 💌</p>'; return; }
+      container.innerHTML = data.map(c=>`<div class="item"><div style="flex:1;"><strong>💌 ${c.titulo}</strong><div class="item-conteudo">${c.conteudo.replace(/\n/g,'<br>')}</div></div><button class="btn-excluir" onclick="excluirCarta('${c.id}')">Excluir</button></div>`).join('');
     }
 
-    // ==========================================
-    // ✨ MENSAGENS
-    // ==========================================
     async function adicionarMensagem(){
       const texto = document.getElementById("msgTexto").value.trim();
       const emoji = document.getElementById("msgEmoji").value.trim() || "✨";
-      if(!texto) return alert("Escreva a mensagem!");
-      
-      const {error} = await supabase.from("mensagens").insert({ texto, emoji });
-      if(error) return alert("❌ Erro: " + error.message);
-      
-      document.getElementById("msgTexto").value = "";
-      await carregarMsgs();
-      alert("✅ Mensagem salva!");
+      if(!texto) return mostrarAviso("Escreva a mensagem!", "erro");
+
+      try {
+        await supabase.from("mensagens").insert({ texto, emoji });
+        mostrarAviso("✅ MENSAGEM SALVA COM SUCESSO! ✨", "sucesso");
+        document.getElementById("msgTexto").value = "";
+        await carregarMsgs();
+      } catch(e) { mostrarAviso(`❌ ERRO: ${e.message}`, "erro"); }
     }
 
     async function excluirMsg(id){
       if(confirm("Excluir essa mensagem?")){
         await supabase.from("mensagens").delete().eq("id", id);
         await carregarMsgs();
+        mostrarAviso("✅ Mensagem excluída!", "sucesso");
       }
     }
 
     async function carregarMsgs(){
-      const {data, error} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
+      const {data} = await supabase.from("mensagens").select("*").order("created_at", {ascending:false});
       const container = document.getElementById("listaMsgs");
-      
-      if(error) { container.innerHTML = `<p class="vazio">Erro: ${error.message}</p>`; return; }
-      if(!data || data.length === 0){
-        container.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>';
-        return;
-      }
-      
-      container.innerHTML = data.map(m=>`
-        <div class="item">
-          <span style="flex:1;">${m.emoji} ${m.texto}</span>
-          <button class="btn-excluir" onclick="excluirMsg('${m.id}')">Excluir</button>
-        </div>`).join('');
+      if(!data || data.length === 0){ container.innerHTML = '<p class="vazio">Nenhuma mensagem ainda ✨</p>'; return; }
+      container.innerHTML = data.map(m=>`<div class="item"><span style="flex:1;">${m.emoji} ${m.texto}</span><button class="btn-excluir" onclick="excluirMsg('${m.id}')">Excluir</button></div>`).join('');
     }
   </script>
 </body>
